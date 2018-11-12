@@ -4,6 +4,7 @@
 #include "GameState.h"
 #include <Windows.h>
 #include <string>
+#include <chrono>
 
 class MainWindow;
 class Graphics;
@@ -27,6 +28,7 @@ public:
 	AssetLoader *GetAssetLoader() const;
 	Keyboard *GetKeyboard() const;
 	Game *GetGame() const;
+	double deltaTime;
 
 	void SetNextState(const std::string &stateName);
 	void SetNextState(const std::string &stateName,
@@ -40,6 +42,9 @@ private:
 	void SwapState();
 	void Update();
 	void Render();
+	typedef std::chrono::high_resolution_clock Time;
+	typedef std::chrono::time_point<std::chrono::high_resolution_clock> time_point;
+	void updateDeltaTime(time_point frameStartTime);
 
 	HINSTANCE moduleInstance_;
 	MainWindow *mainWindow_;

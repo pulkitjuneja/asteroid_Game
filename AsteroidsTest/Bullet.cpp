@@ -5,7 +5,7 @@ Bullet::Bullet(const D3DXVECTOR3 &position,
 	const D3DXVECTOR3 &direction)
 {
 	const float BULLET_SPEED = 4.0f;
-
+	lifeTime = BULLET_LIFETIME;
 	SetPosition(position);
 	D3DXVECTOR3 normalisedDirection;
 	D3DXVec3Normalize(&normalisedDirection, &direction);

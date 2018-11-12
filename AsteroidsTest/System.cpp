@@ -6,6 +6,7 @@
 #include "Keyboard.h"
 #include "GameState.h"
 #include "Game.h"
+#include <chrono>
 
 System::System(HINSTANCE hInstance) :
 	moduleInstance_(hInstance),
@@ -17,7 +18,8 @@ System::System(HINSTANCE hInstance) :
 	keyboard_(0),
 	currentState_(0),
 	nextState_(0),
-	game_(0)
+	game_(0),
+	deltaTime(0)
 {
 }
 
@@ -43,10 +45,12 @@ void System::Run()
 {
 	while (!quit_)
 	{
+		auto frameBeginTime = Time::now();
 		ProcessMessageQueue();
 		SwapState();
 		Update();
 		Render();
+		updateDeltaTime(frameBeginTime);
 	}
 
 	if (currentState_ != 0)
@@ -161,4 +165,11 @@ void System::Render()
 	graphics_->BeginFrame();
 	currentState_->OnRender(this);
 	graphics_->EndFrame();
+}
+
+void System::updateDeltaTime(time_point frameStartTime)
+{
+	time_point frameEndTime = Time::now();
+	std::chrono::duration<float> elapsed = frameEndTime - frameStartTime;
+	deltaTime = elapsed.count();
 }

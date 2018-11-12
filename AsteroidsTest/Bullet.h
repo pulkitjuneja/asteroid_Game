@@ -9,11 +9,12 @@ public:
 	Bullet(const D3DXVECTOR3 &position,
 		const D3DXVECTOR3 &direction);
 
+	double lifeTime;
 	void Update(System *system);
 	void Render(Graphics *graphics) const;
 
 private:
-
+	const double BULLET_LIFETIME = 5.0;
 	D3DXVECTOR3 velocity_;
 
 };

@@ -70,7 +70,7 @@ void Game::RenderEverything(Graphics *graphics)
 		(*asteroidIt)->Render(graphics);
 	}
 
-	if (bullet_ !=nullptr) //**TODO: Candidate for crash
+	if (bullet_!=nullptr) //**TODO: Candidate for crash
 	{
 		bullet_->Render(graphics);
 	}
@@ -190,8 +190,13 @@ void Game::UpdateBullet(System *system)
 {
 	if (bullet_ != nullptr)
 	{
-		bullet_->Update(system);
-		WrapEntity(bullet_);
+		bullet_->lifeTime -= system->deltaTime;
+		if (bullet_->lifeTime <= 0) {
+			DeleteBullet();
+		} else {
+			bullet_->Update(system);
+			WrapEntity(bullet_);
+		}
 	}
 }
 
