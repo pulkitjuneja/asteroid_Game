@@ -99,6 +99,9 @@
     <ClCompile Include="Maths.cpp">
       <Filter>System</Filter>
     </ClCompile>
+    <ClCompile Include="BulletManager.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainWindow.h">
@@ -181,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="AssetManager.hpp">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="BulletManager.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

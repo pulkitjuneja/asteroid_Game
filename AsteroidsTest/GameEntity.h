@@ -2,6 +2,7 @@
 #define GAMEENTITY_H_INCLUDED
 
 #include <d3dx9math.h>
+#include "Maths.h"
 
 class System;
 class Graphics;
@@ -19,7 +20,7 @@ public:
 
 	D3DXVECTOR3 GetPosition() const;
 	void SetPosition(const D3DXVECTOR3 &position);
-
+	void WrapEntity();
 	void EnableCollisions(Collision *collisionSystem, float radius);
 	void DisableCollisions();
 

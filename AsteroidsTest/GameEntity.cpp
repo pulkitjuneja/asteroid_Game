@@ -35,6 +35,14 @@ void GameEntity::SetPosition(const D3DXVECTOR3 &position)
 	}
 }
 
+void GameEntity::WrapEntity()
+{
+	D3DXVECTOR3 entityPosition = this->GetPosition();
+	entityPosition.x = Maths::WrapModulo(entityPosition.x, -400.0f, 400.0f);
+	entityPosition.y = Maths::WrapModulo(entityPosition.y, -300.0f, 300.0f);
+	this->SetPosition(entityPosition);
+}
+
 void GameEntity::EnableCollisions(Collision *collisionSystem, float radius)
 {
 	DestroyCollider();

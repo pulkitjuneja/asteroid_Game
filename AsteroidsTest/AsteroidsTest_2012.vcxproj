@@ -91,6 +91,7 @@
     <ClCompile Include="Background.cpp" />
     <ClCompile Include="BootState.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="BulletManager.cpp" />
     <ClCompile Include="Maths.cpp" />
     <ClCompile Include="OrthoCamera.cpp" />
     <ClCompile Include="Collider.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="Background.h" />
     <ClInclude Include="BootState.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="BulletManager.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="OrthoCamera.h" />
     <ClInclude Include="Collider.h" />

@@ -23,6 +23,7 @@ Game::Game() :
 	camera_->SetFrustum(800.0f, 600.0f, -100.0f, 100.0f);
 	background_ = new Background(800.0f, 600.0f);
 	collision_ = new Collision();
+	bulletManager = new BulletManager();
 }
 
 Game::~Game()
@@ -31,6 +32,7 @@ Game::~Game()
 	delete background_;
 	delete player_;
 	DeleteAllAsteroids();
+	bulletManager->DeleteAllBullets();
 	DeleteAllExplosions();
 	delete collision_;
 }
@@ -39,7 +41,7 @@ void Game::Update(System *system)
 {
 	UpdatePlayer(system);
 	UpdateAsteroids(system);
-	UpdateBullets(system);
+	bulletManager->UpdateBullets(system);
 	UpdateCollisions();
 }
 
@@ -68,9 +70,7 @@ void Game::RenderEverything(Graphics *graphics)
 		(*asteroidIt)->Render(graphics);
 	}
 
-	for (std::list<Bullet*>::const_iterator bulletIter = bullets.begin(); bulletIter != bullets.end(); bulletIter++) {
-		(*bulletIter)->Render(graphics);
-	}
+	bulletManager->RenderBullets(graphics);
 
 	for (ExplosionList::const_iterator explosionIt = explosions_.begin(),
 		end = explosions_.end();
@@ -85,7 +85,7 @@ void Game::InitialiseLevel(int numAsteroids)
 {
 	DeleteAllAsteroids();
 	DeleteAllExplosions();
-
+	bulletManager->DeleteAllBullets();
 	SpawnPlayer();
 	SpawnAsteroids(numAsteroids);
 }
@@ -103,7 +103,7 @@ bool Game::IsGameOver() const
 void Game::DoCollision(GameEntity *a, GameEntity *b)
 {
 	Ship *player = static_cast<Ship *>(a == player_ ? a : (b == player_ ? b : 0));
-	Bullet *bullet = static_cast<Bullet *>(IsBullet(a) ? a : (IsBullet(b) ? b : 0));
+	Bullet *bullet = static_cast<Bullet *>(bulletManager->IsBullet(a) ? a : (bulletManager->IsBullet(b) ? b : 0));
 	Asteroid *asteroid = static_cast<Asteroid *>(IsAsteroid(a) ? a : (IsAsteroid(b) ? b : 0));
 
 	if (player && asteroid)
@@ -115,7 +115,7 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 	if (bullet && asteroid)
 	{
 		AsteroidHit(asteroid);
-		DeleteBullet(bullet);
+		bulletManager->DeleteBullet(bullet);
 	}
 }
 
@@ -161,13 +161,13 @@ void Game::UpdatePlayer(System *system)
 
 	player_->SetControlInput(acceleration, rotation);
 	player_->Update(system);
-	WrapEntity(player_);
+	(player_)->WrapEntity();
 
 	if (keyboard->IsKeyPressed(VK_SPACE))
 	{
 		D3DXVECTOR3 playerForward = player_->GetForwardVector();
 		D3DXVECTOR3 bulletPosition = player_->GetPosition() + playerForward * 10.0f;
-		SpawnBullet(bulletPosition, playerForward);
+		bulletManager->SpawnBullet(bulletPosition, playerForward, collision_);
 	}
 }
 
@@ -179,31 +179,8 @@ void Game::UpdateAsteroids(System *system)
 	++asteroidIt)
 	{
 		(*asteroidIt)->Update(system);
-		WrapEntity(*asteroidIt);
+		(*asteroidIt)->WrapEntity();
 	}
-}
-
-void Game::UpdateBullets(System *system)
-{
-	std::list<Bullet*>::iterator bulletIter = bullets.begin();
-	while (bulletIter != bullets.end()) {
-		(*bulletIter)->lifeTime -= system->deltaTime;
-		if ((*bulletIter)->lifeTime <= 0) {
-			DeleteBullet((*bulletIter++)); // increments first and then passes, ensures iterator stays valid
-		} else {
-			(*bulletIter)->Update(system);
-			WrapEntity((*bulletIter));
-			bulletIter++;
-		}
-	}
-}
-
-void Game::WrapEntity(GameEntity *entity) const
-{
-	D3DXVECTOR3 entityPosition = entity->GetPosition();
-	entityPosition.x = Maths::WrapModulo(entityPosition.x, -400.0f, 400.0f);
-	entityPosition.y = Maths::WrapModulo(entityPosition.y, -300.0f, 300.0f);
-	entity->SetPosition(entityPosition);
 }
 
 void Game::DeleteAllAsteroids()
@@ -230,20 +207,6 @@ void Game::DeleteAllExplosions()
 	}
 
 	explosions_.clear();
-}
-
-void Game::SpawnBullet(const D3DXVECTOR3 &position,
-	const D3DXVECTOR3 &direction)
-{
-	Bullet* newBullet = new Bullet(position, direction);
-	newBullet->EnableCollisions(collision_, 3.0f);
-	bullets.push_back(newBullet);
-}
-
-void Game::DeleteBullet(Bullet* bullet)
-{
-	bullets.remove(bullet);
-	delete bullet;
 }
 
 void Game::SpawnAsteroids(int numAsteroids)
@@ -278,12 +241,6 @@ bool Game::IsAsteroid(GameEntity *entity) const
 {
 	return (std::find(asteroids_.begin(),
 		asteroids_.end(), entity) != asteroids_.end()); 
-}
-
-bool Game::IsBullet(GameEntity * entity) const
-{
-	return (std::find(bullets.begin(),
-		bullets.end(), entity) != bullets.end());
 }
 
 void Game::AsteroidHit(Asteroid *asteroid)
