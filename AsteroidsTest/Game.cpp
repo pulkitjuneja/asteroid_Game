@@ -23,7 +23,6 @@ Game::Game() :
 	camera_->SetFrustum(800.0f, 600.0f, -100.0f, 100.0f);
 	background_ = new Background(800.0f, 600.0f);
 	collision_ = new Collision();
-	bullet_ = nullptr; 
 }
 
 Game::~Game()
@@ -31,7 +30,6 @@ Game::~Game()
 	delete camera_;
 	delete background_;
 	delete player_;
-	DeleteBullet();
 	DeleteAllAsteroids();
 	DeleteAllExplosions();
 	delete collision_;
@@ -41,7 +39,7 @@ void Game::Update(System *system)
 {
 	UpdatePlayer(system);
 	UpdateAsteroids(system);
-	UpdateBullet(system);
+	UpdateBullets(system);
 	UpdateCollisions();
 }
 
@@ -70,9 +68,8 @@ void Game::RenderEverything(Graphics *graphics)
 		(*asteroidIt)->Render(graphics);
 	}
 
-	if (bullet_!=nullptr) //**TODO: Candidate for crash
-	{
-		bullet_->Render(graphics);
+	for (std::list<Bullet*>::const_iterator bulletIter = bullets.begin(); bulletIter != bullets.end(); bulletIter++) {
+		(*bulletIter)->Render(graphics);
 	}
 
 	for (ExplosionList::const_iterator explosionIt = explosions_.begin(),
@@ -106,7 +103,7 @@ bool Game::IsGameOver() const
 void Game::DoCollision(GameEntity *a, GameEntity *b)
 {
 	Ship *player = static_cast<Ship *>(a == player_ ? a : (b == player_ ? b : 0));
-	Bullet *bullet = static_cast<Bullet *>(a == bullet_ ? a : (b == bullet_ ? b : 0));
+	Bullet *bullet = static_cast<Bullet *>(IsBullet(a) ? a : (IsBullet(b) ? b : 0));
 	Asteroid *asteroid = static_cast<Asteroid *>(IsAsteroid(a) ? a : (IsAsteroid(b) ? b : 0));
 
 	if (player && asteroid)
@@ -118,7 +115,7 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 	if (bullet && asteroid)
 	{
 		AsteroidHit(asteroid);
-		DeleteBullet();
+		DeleteBullet(bullet);
 	}
 }
 
@@ -186,16 +183,17 @@ void Game::UpdateAsteroids(System *system)
 	}
 }
 
-void Game::UpdateBullet(System *system)
+void Game::UpdateBullets(System *system)
 {
-	if (bullet_ != nullptr)
-	{
-		bullet_->lifeTime -= system->deltaTime;
-		if (bullet_->lifeTime <= 0) {
-			DeleteBullet();
+	std::list<Bullet*>::iterator bulletIter = bullets.begin();
+	while (bulletIter != bullets.end()) {
+		(*bulletIter)->lifeTime -= system->deltaTime;
+		if ((*bulletIter)->lifeTime <= 0) {
+			DeleteBullet((*bulletIter++)); // increments first and then passes, ensures iterator stays valid
 		} else {
-			bullet_->Update(system);
-			WrapEntity(bullet_);
+			(*bulletIter)->Update(system);
+			WrapEntity((*bulletIter));
+			bulletIter++;
 		}
 	}
 }
@@ -237,15 +235,15 @@ void Game::DeleteAllExplosions()
 void Game::SpawnBullet(const D3DXVECTOR3 &position,
 	const D3DXVECTOR3 &direction)
 {
-	DeleteBullet();
-	bullet_ = new Bullet(position, direction);
-	bullet_->EnableCollisions(collision_, 3.0f);
+	Bullet* newBullet = new Bullet(position, direction);
+	newBullet->EnableCollisions(collision_, 3.0f);
+	bullets.push_back(newBullet);
 }
 
-void Game::DeleteBullet()
+void Game::DeleteBullet(Bullet* bullet)
 {
-	delete bullet_;
-	bullet_ = 0;
+	bullets.remove(bullet);
+	delete bullet;
 }
 
 void Game::SpawnAsteroids(int numAsteroids)
@@ -280,6 +278,12 @@ bool Game::IsAsteroid(GameEntity *entity) const
 {
 	return (std::find(asteroids_.begin(),
 		asteroids_.end(), entity) != asteroids_.end()); 
+}
+
+bool Game::IsBullet(GameEntity * entity) const
+{
+	return (std::find(bullets.begin(),
+		bullets.end(), entity) != bullets.end());
 }
 
 void Game::AsteroidHit(Asteroid *asteroid)

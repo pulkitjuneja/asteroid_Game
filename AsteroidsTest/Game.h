@@ -43,7 +43,7 @@ private:
 
 	void UpdatePlayer(System *system);
 	void UpdateAsteroids(System *system);
-	void UpdateBullet(System *system);
+	void UpdateBullets(System *system);
 	void WrapEntity(GameEntity *entity) const;
 
 	void DeleteAllAsteroids();
@@ -51,11 +51,12 @@ private:
 
 	void SpawnBullet(const D3DXVECTOR3 &position,
 		const D3DXVECTOR3 &direction);
-	void DeleteBullet();
+	void DeleteBullet(Bullet* bullet);
 
 	void SpawnAsteroids(int numAsteroids);
 	void SpawnAsteroidAt(const D3DXVECTOR3 &position, int size);
 	bool IsAsteroid(GameEntity *entity) const;
+	bool IsBullet(GameEntity* entity) const;
 	void AsteroidHit(Asteroid *asteroid);
 	void DeleteAsteroid(Asteroid *asteroid);
 
@@ -65,7 +66,7 @@ private:
 
 	Background *background_;
 	Ship *player_;
-	Bullet *bullet_;
+	std::list<Bullet*> bullets;
 	AsteroidList asteroids_;
 	ExplosionList explosions_;
 
