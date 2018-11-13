@@ -8,9 +8,13 @@ bool BulletManager::IsBullet(GameEntity * entity) const
 
 void BulletManager::SpawnBullet(const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction, Collision* collisionSystem)
 {
-	Bullet* newBullet = new Bullet(position, direction);
-	newBullet->EnableCollisions(collisionSystem, 3.0f);
-	bullets.push_back(newBullet);
+	std::chrono::duration<float> elapsed = Time::now() - lastBulletFireTime;
+	if (elapsed.count() > FIRE_GAP) {
+		Bullet* newBullet = new Bullet(position, direction);
+		newBullet->EnableCollisions(collisionSystem, 3.0f);
+		bullets.push_back(newBullet);
+		lastBulletFireTime = Time::now();
+	}
 }
 
 void BulletManager::DeleteBullet(Bullet * bullet)

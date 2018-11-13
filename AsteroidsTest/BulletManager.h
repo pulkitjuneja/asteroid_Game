@@ -9,6 +9,8 @@
 
 class BulletManager {
 	std::list<Bullet*> bullets;
+	time_point lastBulletFireTime;
+	const double FIRE_GAP = 1.0;  // time between subsequent bullet fires
 public:
 	bool IsBullet(GameEntity* entity) const;
 	BulletManager() {};

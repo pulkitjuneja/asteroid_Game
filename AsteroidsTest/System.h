@@ -13,6 +13,9 @@ class StateLibrary;
 class Keyboard;
 class Game;
 
+typedef std::chrono::high_resolution_clock Time;
+typedef std::chrono::time_point<std::chrono::high_resolution_clock> time_point;
+
 class System
 {
 public:
@@ -42,8 +45,6 @@ private:
 	void SwapState();
 	void Update();
 	void Render();
-	typedef std::chrono::high_resolution_clock Time;
-	typedef std::chrono::time_point<std::chrono::high_resolution_clock> time_point;
 	void updateDeltaTime(time_point frameStartTime);
 
 	HINSTANCE moduleInstance_;
