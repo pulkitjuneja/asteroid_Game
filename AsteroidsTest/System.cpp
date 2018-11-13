@@ -34,7 +34,7 @@ void System::Initialise()
 	assetLoader_ = new AssetLoader();
 	stateLibrary_ = new StateLibrary();
 	keyboard_ = new Keyboard();
-	game_ = new Game();
+	game_ = new Game(this);
 }
 
 void System::Test()

@@ -4,6 +4,9 @@
 #include <d3dx9math.h>
 #include <list>
 #include "BulletManager.h"
+#include "Font.h"
+#include "System.h"
+#include "Graphics.h"
 
 class OrthoCamera;
 class Background;
@@ -20,7 +23,7 @@ class GameEntity;
 class Game
 {
 public:
-	Game();
+	Game(System* system);
 	~Game();
 
 	void Update(System *system);
@@ -57,13 +60,13 @@ private:
 	void UpdateCollisions();
 
 	OrthoCamera *camera_;
-
+	System* systemRef_;
 	Background *background_;
 	Ship *player_;
 	BulletManager* bulletManager;
 	AsteroidList asteroids_;
 	ExplosionList explosions_;
-
+	Font* scoreFont_;
 	Collision *collision_;
 };
 

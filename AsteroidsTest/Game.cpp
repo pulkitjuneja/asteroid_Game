@@ -1,5 +1,4 @@
 #include "Game.h"
-#include "System.h"
 #include "OrthoCamera.h"
 #include "Background.h"
 #include "Ship.h"
@@ -12,11 +11,12 @@
 #include "Collision.h"
 #include <algorithm>
 
-Game::Game() :
+Game::Game(System* system) :
 	camera_(0),
 	background_(0),
 	player_(0),
-	collision_(0)
+	collision_(0),
+	systemRef_(system)
 {
 	camera_ = new OrthoCamera();
 	camera_->SetPosition(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
@@ -24,6 +24,7 @@ Game::Game() :
 	background_ = new Background(800.0f, 600.0f);
 	collision_ = new Collision();
 	bulletManager = new BulletManager();
+	scoreFont_ = system->GetGraphics()->CreateXFont("Arial", 20);
 }
 
 Game::~Game()
@@ -79,6 +80,14 @@ void Game::RenderEverything(Graphics *graphics)
 	{
 		(*explosionIt)->Render(graphics);
 	}
+
+	// rendeing Player score
+	// rendering it here as I believe that the game class should have control of where the score is rendered
+	if (player_ != nullptr) {
+		string scoreText = "Total Score : " + std::to_string(player_->GetTotalScore());
+		int textX = (800 - scoreFont_->CalculateTextWidth(scoreText) - 20);
+		scoreFont_->DrawText(scoreText, textX, 5, 0xffffff00);
+	}
 }
 
 void Game::InitialiseLevel(int numAsteroids)
@@ -114,6 +123,7 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 
 	if (bullet && asteroid)
 	{
+		player_->addScore(asteroid);
 		AsteroidHit(asteroid);
 		bulletManager->DeleteBullet(bullet);
 	}
@@ -122,7 +132,7 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 void Game::SpawnPlayer()
 {
 	DeletePlayer();
-	player_ = new Ship();
+	player_ = new Ship(systemRef_);
 	player_->EnableCollisions(collision_, 10.0f);
 }
 
