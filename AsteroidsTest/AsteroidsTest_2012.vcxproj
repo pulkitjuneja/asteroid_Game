@@ -92,6 +92,7 @@
     <ClCompile Include="BootState.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="BulletManager.cpp" />
+    <ClCompile Include="EnemyShip.cpp" />
     <ClCompile Include="Maths.cpp" />
     <ClCompile Include="OrthoCamera.cpp" />
     <ClCompile Include="Collider.cpp" />
@@ -111,6 +112,7 @@
     <ClCompile Include="PlayingState.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Ship.cpp" />
+    <ClCompile Include="ShipBase.cpp" />
     <ClCompile Include="StateLibrary.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
@@ -123,6 +125,7 @@
     <ClInclude Include="BootState.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="BulletManager.h" />
+    <ClInclude Include="EnemyShip.h" />
     <ClInclude Include="Maths.h" />
     <ClInclude Include="OrthoCamera.h" />
     <ClInclude Include="Collider.h" />
@@ -141,6 +144,7 @@
     <ClInclude Include="PlayingState.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Ship.h" />
+    <ClInclude Include="ShipBase.h" />
     <ClInclude Include="StateLibrary.h" />
     <ClInclude Include="System.h" />
   </ItemGroup>

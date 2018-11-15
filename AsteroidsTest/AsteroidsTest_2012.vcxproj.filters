@@ -102,6 +102,12 @@
     <ClCompile Include="BulletManager.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="ShipBase.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyShip.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainWindow.h">
@@ -186,6 +192,12 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="BulletManager.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ShipBase.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyShip.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,4 @@
 #include "Graphics.h"
-#include "Font.h"
 
 Graphics::Graphics(IDirect3D9 *d3d, IDirect3DDevice9 *d3dDevice) :
 	d3d_(d3d),

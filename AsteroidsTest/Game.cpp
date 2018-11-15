@@ -4,11 +4,11 @@
 #include "Ship.h"
 #include "Asteroid.h"
 #include "Explosion.h"
-#include "Keyboard.h"
 #include "Random.h"
 #include "Maths.h"
 #include "Bullet.h"
 #include "Collision.h"
+#include "EnemyShip.h"
 #include <algorithm>
 
 Game::Game(System* system) :
@@ -23,7 +23,7 @@ Game::Game(System* system) :
 	camera_->SetFrustum(800.0f, 600.0f, -100.0f, 100.0f);
 	background_ = new Background(800.0f, 600.0f);
 	collision_ = new Collision();
-	bulletManager = new BulletManager();
+	bulletManager = new BulletManager(collision_);
 	scoreFont_ = system->GetGraphics()->CreateXFont("Arial", 20);
 }
 
@@ -44,6 +44,7 @@ void Game::Update(System *system)
 	UpdateAsteroids(system);
 	bulletManager->UpdateBullets(system);
 	UpdateCollisions();
+	updateEnemies(system);
 }
 
 void Game::RenderBackgroundOnly(Graphics *graphics)
@@ -88,15 +89,20 @@ void Game::RenderEverything(Graphics *graphics)
 		int textX = (800 - scoreFont_->CalculateTextWidth(scoreText) - 20);
 		scoreFont_->DrawText(scoreText, textX, 5, 0xffffff00);
 	}
+
+	if (enemyShip_ != nullptr) {
+		enemyShip_->Render(graphics);
+	}
 }
 
-void Game::InitialiseLevel(int numAsteroids)
+void Game::InitialiseLevel(int level)
 {
 	DeleteAllAsteroids();
 	DeleteAllExplosions();
 	bulletManager->DeleteAllBullets();
 	SpawnPlayer();
-	SpawnAsteroids(numAsteroids);
+	SpawnEnemy(level);
+	SpawnAsteroids(level);
 }
 
 bool Game::IsLevelComplete() const
@@ -106,14 +112,15 @@ bool Game::IsLevelComplete() const
 
 bool Game::IsGameOver() const
 {
-	return (player_ == 0 && explosions_.empty());
+	return (player_ == nullptr && explosions_.empty());
 }
 
 void Game::DoCollision(GameEntity *a, GameEntity *b)
 {
-	Ship *player = static_cast<Ship *>(a == player_ ? a : (b == player_ ? b : 0));
+	PlayerShip *player = static_cast<PlayerShip *>(a == player_ ? a : (b == player_ ? b : 0));
 	Bullet *bullet = static_cast<Bullet *>(bulletManager->IsBullet(a) ? a : (bulletManager->IsBullet(b) ? b : 0));
 	Asteroid *asteroid = static_cast<Asteroid *>(IsAsteroid(a) ? a : (IsAsteroid(b) ? b : 0));
+	EnemyShip* enemy = static_cast<EnemyShip*>(a == enemyShip_ ? a : (b == enemyShip_ ? b : 0));
 
 	if (player && asteroid)
 	{
@@ -121,63 +128,56 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 		DeletePlayer();
 	}
 
-	if (bullet && asteroid)
-	{
-		player_->addScore(asteroid);
-		AsteroidHit(asteroid);
-		bulletManager->DeleteBullet(bullet);
+	if (bullet) {
+		if (asteroid) {
+			player_->CalculateScoreFromAsteroidSize(asteroid);
+			AsteroidHit(asteroid);
+			bulletManager->DeleteBullet(bullet);
+		} else if (player && bullet->shipRef_ != player_) {
+			bulletManager->DeleteBullet(bullet);
+			DeletePlayer();
+		}
+		else if (enemy && bullet->shipRef_ == player_) {
+			bulletManager->DeleteBullet(bullet);
+			player_->addScore(100);
+			delete enemyShip_;
+			enemyShip_ = nullptr;
+		}
+
 	}
+
 }
 
 void Game::SpawnPlayer()
 {
 	DeletePlayer();
-	player_ = new Ship(systemRef_);
+	player_ = new PlayerShip(systemRef_);
 	player_->EnableCollisions(collision_, 10.0f);
 }
 
 void Game::DeletePlayer()
 {
 	delete player_;
-	player_ = 0;
+	player_ = nullptr;
+}
+
+void Game::SpawnEnemy(int level)
+{
+	if (level > 2) {
+		const int spawnPositions[2] = { -200, 200 };
+		int xRandomizer = rand() % 2;
+		int yRandomizer = rand() % 2;
+		enemyShip_ = new EnemyShip(systemRef_, player_);
+		enemyShip_->EnableCollisions(collision_, 10.0);
+		enemyShip_->SetPosition(D3DXVECTOR3(spawnPositions[xRandomizer], spawnPositions[yRandomizer], 0));
+	}
 }
 
 void Game::UpdatePlayer(System *system)
 {
-	if (player_ == 0)
-		return;
-
-	Keyboard *keyboard = system->GetKeyboard();
-
-	float acceleration = 0.0f;
-	if (keyboard->IsKeyHeld(VK_UP) || keyboard->IsKeyHeld('W'))
-	{
-		acceleration = 1.0f;
-	}
-	else if (keyboard->IsKeyHeld(VK_DOWN) || keyboard->IsKeyHeld('S'))
-	{
-		acceleration = -1.0f;
-	}
-
-	float rotation = 0.0f;
-	if (keyboard->IsKeyHeld(VK_RIGHT) || keyboard->IsKeyHeld('D'))
-	{
-		rotation = -1.0f;
-	}
-	else if (keyboard->IsKeyHeld(VK_LEFT) || keyboard->IsKeyHeld('A'))
-	{
-		rotation = 1.0f;
-	}
-
-	player_->SetControlInput(acceleration, rotation);
-	player_->Update(system);
-	(player_)->WrapEntity();
-
-	if (keyboard->IsKeyPressed(VK_SPACE))
-	{
-		D3DXVECTOR3 playerForward = player_->GetForwardVector();
-		D3DXVECTOR3 bulletPosition = player_->GetPosition() + playerForward * 10.0f;
-		bulletManager->SpawnBullet(bulletPosition, playerForward, collision_);
+	if (player_ != nullptr) {
+		player_->Update(system);
+		player_->WrapEntity();
 	}
 }
 
@@ -190,6 +190,13 @@ void Game::UpdateAsteroids(System *system)
 	{
 		(*asteroidIt)->Update(system);
 		(*asteroidIt)->WrapEntity();
+	}
+}
+
+void Game::updateEnemies(System * system)
+{
+	if (enemyShip_ != nullptr) {
+		enemyShip_->Update(system);
 	}
 }
 

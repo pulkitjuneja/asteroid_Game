@@ -7,14 +7,16 @@
 #include "Bullet.h"
 #include "System.h"
 
+class Game;
+
 class BulletManager {
 	std::list<Bullet*> bullets;
-	time_point lastBulletFireTime;
-	const double FIRE_GAP = 1.0;  // time between subsequent bullet fires
+	Collision* collisionRef_;
 public:
 	bool IsBullet(GameEntity* entity) const;
-	BulletManager() {};
-	void SpawnBullet(const D3DXVECTOR3 &position, const D3DXVECTOR3 &direction, Collision* collisionSystem);
+	BulletManager(Collision* collisionref);
+	void SpawnBullet(const D3DXVECTOR3 &position, const D3DXVECTOR3 &direction,
+		ShipBase* shipRef, D3DCOLOR bulletColor);
 	void DeleteBullet(Bullet* bullet);
 	void DeleteAllBullets();
 	void UpdateBullets(System* system);

@@ -10,7 +10,8 @@
 
 class OrthoCamera;
 class Background;
-class Ship;
+class PlayerShip;
+class EnemyShip;
 class Bullet;
 class Asteroid;
 class Explosion;
@@ -35,6 +36,8 @@ public:
 
 	void DoCollision(GameEntity *a, GameEntity *b);
 
+	BulletManager* bulletManager;
+
 private:
 	Game(const Game &);
 	void operator=(const Game &);
@@ -44,9 +47,11 @@ private:
 
 	void SpawnPlayer();
 	void DeletePlayer();
+	void SpawnEnemy(int level);
 
 	void UpdatePlayer(System *system);
 	void UpdateAsteroids(System *system);
+	void updateEnemies(System* system);
 
 	void DeleteAllAsteroids();
 	void DeleteAllExplosions();
@@ -62,11 +67,11 @@ private:
 	OrthoCamera *camera_;
 	System* systemRef_;
 	Background *background_;
-	Ship *player_;
-	BulletManager* bulletManager;
+	PlayerShip *player_;
 	AsteroidList asteroids_;
 	ExplosionList explosions_;
 	Font* scoreFont_;
+	EnemyShip* enemyShip_;
 	Collision *collision_;
 };
 

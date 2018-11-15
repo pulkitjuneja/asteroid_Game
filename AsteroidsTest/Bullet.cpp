@@ -1,8 +1,9 @@
 #include "Bullet.h"
 #include "Graphics.h"
 
-Bullet::Bullet(const D3DXVECTOR3 &position,
-	const D3DXVECTOR3 &direction)
+Bullet::Bullet(const D3DXVECTOR3 &position, const D3DXVECTOR3 &direction,
+	ShipBase* shipRef, D3DCOLOR color): 
+	shipRef_(shipRef)
 {
 	const float BULLET_SPEED = 4.0f;
 	lifeTime = BULLET_LIFETIME;
@@ -10,6 +11,7 @@ Bullet::Bullet(const D3DXVECTOR3 &position,
 	D3DXVECTOR3 normalisedDirection;
 	D3DXVec3Normalize(&normalisedDirection, &direction);
 	velocity_ = normalisedDirection * BULLET_SPEED;
+	bulletColor = color;
 }
 
 void Bullet::Update(System *system)
@@ -31,11 +33,11 @@ void Bullet::Render(Graphics *graphics) const
 
 	DummyVert square[5] =
 	{
-		{-RADIUS, -RADIUS, 0.0f, 0xffffffff},
-		{-RADIUS,  RADIUS, 0.0f, 0xffffffff},
-		{ RADIUS,  RADIUS, 0.0f, 0xffffffff},
-		{ RADIUS, -RADIUS, 0.0f, 0xffffffff},
-		{-RADIUS, -RADIUS, 0.0f, 0xffffffff},
+		{-RADIUS, -RADIUS, 0.0f, bulletColor},
+		{-RADIUS,  RADIUS, 0.0f, bulletColor},
+		{ RADIUS,  RADIUS, 0.0f, bulletColor},
+		{ RADIUS, -RADIUS, 0.0f, bulletColor},
+		{-RADIUS, -RADIUS, 0.0f, bulletColor},
 	};
 
 	D3DXVECTOR3 position = GetPosition();

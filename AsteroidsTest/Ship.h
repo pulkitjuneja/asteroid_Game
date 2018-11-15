@@ -1,17 +1,17 @@
 #ifndef SHIP_H_INCLUDED
 #define SHIP_H_INCLUDED
 
-#include "GameEntity.h"
 #include "System.h"
 #include "Font.h"
 #include "Asteroid.h"
+#include "ShipBase.h"
 
 class Graphics;
 
-class Ship : public GameEntity
+class PlayerShip : public ShipBase
 {
 public:
-	Ship(System* system);
+	PlayerShip(System* system);
 
 	void SetControlInput(float acceleration,
 		float rotation);
@@ -20,20 +20,12 @@ public:
 	void Render(Graphics *graphics) const;
 	int GetTotalScore();
 	void ResetScore();
-	void addScore(Asteroid* asteroid);
+	void addScore(int score );
+	void CalculateScoreFromAsteroidSize(Asteroid* asteroid);
 
-	D3DXVECTOR3 GetForwardVector() const;
-	D3DXVECTOR3 GetVelocity() const;
-	void Reset();
-
-private:
-
-	float accelerationControl_;
-	float rotationControl_;
+protected:
+	Keyboard* keyboard;
 	int recentScore, totalScore;
-	D3DXVECTOR3 velocity_;
-	D3DXVECTOR3 forward_;
-	float rotation_;
 	Font* floatingScore_;
 	double floatScoreCounter; // timer to show the floating text for
 

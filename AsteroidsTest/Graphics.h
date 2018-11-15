@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef GRAPHICS_H_INCLUDED
 #define GRAPHICS_H_INCLUDED
 

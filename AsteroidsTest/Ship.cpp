@@ -1,93 +1,73 @@
 #include "Ship.h"
 #include "Graphics.h"
 #include "Maths.h"
+#include "Keyboard.h"
 #include <algorithm>
 
-Ship::Ship(System* system) :
-	accelerationControl_(0.0f),
-	rotationControl_(0.0f),
-	velocity_(D3DXVECTOR3(0.0f, 0.0f, 0.0f)),
-	forward_(D3DXVECTOR3(0.0f, 1.0f, 0.0f)),
-	rotation_(0.0f), //**TODO: Candidate for crash
+PlayerShip::PlayerShip(System* system) : 
+	ShipBase(system),
 	recentScore(0),
 	totalScore(0)
 {
 	floatingScore_ = system->GetGraphics()->CreateXFont("Arial", 20);
+	keyboard = system->GetKeyboard();
+	MAX_SPEED = 2.0;
 }
 
-void Ship::SetControlInput(float acceleration,
+void PlayerShip::SetControlInput(float acceleration,
 	float rotation)
 {
 	accelerationControl_ = acceleration;
 	rotationControl_ = rotation;
 }
 
-void Ship::Update(System *system)
+void PlayerShip::Update(System *system)
 {
+	accelerationControl_ = 0.0f;
+	if (keyboard->IsKeyHeld(VK_UP) || keyboard->IsKeyHeld('W'))
+	{
+		accelerationControl_ = 1.0f;
+	}
+	else if (keyboard->IsKeyHeld(VK_DOWN) || keyboard->IsKeyHeld('S'))
+	{
+		accelerationControl_ = -1.0f;
+	}
+
+	rotationControl_ = 0.0f;
+	if (keyboard->IsKeyHeld(VK_RIGHT) || keyboard->IsKeyHeld('D'))
+	{
+		rotationControl_ = -1.0f;
+	}
+	else if (keyboard->IsKeyHeld(VK_LEFT) || keyboard->IsKeyHeld('A'))
+	{
+		rotationControl_ = 1.0f;
+	}
+
+	if (keyboard->IsKeyPressed(VK_SPACE))
+	{
+		std::chrono::duration<float> elapsed = Time::now() - lastBulletFireTime;
+		if (elapsed.count() > FIRE_GAP) {
+			D3DXVECTOR3 playerForward = GetForwardVector();
+			D3DXVECTOR3 bulletPosition = GetPosition() + playerForward * 10.0f;
+			bulletManagerRef_->SpawnBullet(bulletPosition, playerForward, this, this->shipColor);
+			lastBulletFireTime = Time::now();
+		}
+	}
+
+	if (floatScoreCounter > 0) {
+		floatScoreCounter -= system->deltaTime;
+	}
+
 	const float RATE_OF_ROTATION = 0.1f;
-	const float MAX_SPEED = 2.0f;
-	const float VELOCITY_TWEEN = 0.05f;
 
 	rotation_ = Maths::WrapModulo(rotation_ + rotationControl_ * RATE_OF_ROTATION,
 		Maths::TWO_PI);
 
-	D3DXMATRIX rotationMatrix;
-	D3DXMatrixRotationZ(&rotationMatrix, rotation_);
-	D3DXVec3TransformNormal(&forward_, &D3DXVECTOR3(0.0f, 1.0f, 0.0f),
-		&rotationMatrix);
-	D3DXVec3Normalize(&forward_, &forward_);
-
-	D3DXVECTOR3 idealVelocity;
-	D3DXVec3Scale(&idealVelocity, &forward_, accelerationControl_ * MAX_SPEED);
-	D3DXVec3Lerp(&velocity_, &velocity_, &idealVelocity, VELOCITY_TWEEN);
-
-	D3DXVECTOR3 newPosition = GetPosition();
-	D3DXVec3Add(&newPosition, &newPosition, &velocity_);
-	SetPosition(newPosition);
-	if (floatScoreCounter > 0) {
-		floatScoreCounter -= system->deltaTime;
-	}
+	ShipBase::Update(system);
 }
 
-void Ship::Render(Graphics *graphics) const
+void PlayerShip::Render(Graphics *graphics) const
 {
-	struct DummyVert
-	{
-		float x, y, z;
-		D3DCOLOR diffuse;
-	};
-
-	DummyVert axis[8] =
-	{
-		{0.0f, -5.0f, 0.0f, 0xffffffff}, {0.0f, 10.0f, 0.0f, 0xffffffff},
-		{-5.0f, 0.0f, 0.0f, 0xffffffff}, {5.0f, 0.0f, 0.0f, 0xffffffff},
-		{0.0f, 10.0f, 0.0f, 0xffffffff}, {-5.0f, 5.0f, 0.0f, 0xffffffff},
-		{0.0f, 10.0f, 0.0f, 0xffffffff}, {5.0f, 5.0f, 0.0f, 0xffffffff},
-	};
-
-	D3DXMATRIX rotationMatrix;
-	D3DXMatrixRotationZ(&rotationMatrix, rotation_);
-
-	D3DXVECTOR3 position = GetPosition();
-	D3DXMATRIX translationMatrix;
-	D3DXMatrixTranslation(&translationMatrix,
-		position.x,
-		position.y,
-		position.z);
-
-	D3DXMATRIX shipTransform = rotationMatrix * translationMatrix;
-
-	D3DXMATRIX identityMatrix;
-	D3DXMatrixIdentity(&identityMatrix);
-
-	DWORD dummyFvf = D3DFVF_XYZ | D3DFVF_DIFFUSE;
-	graphics->SetVertexFormat(dummyFvf);
-	graphics->DisableLighting();
-	graphics->SetModelMatrix(&shipTransform);
-	graphics->DrawImmediate(D3DPT_LINELIST,
-		4,
-		&axis[0],
-		sizeof(axis[0]));
 
 	// Render recent floating text
 	if (floatScoreCounter > 0) {
@@ -96,52 +76,32 @@ void Ship::Render(Graphics *graphics) const
 		floatingScore_->DrawText(scoreString, textX, 25, 0xffffff00);
 	}
 
-	graphics->SetModelMatrix(&identityMatrix);
-	graphics->EnableLighting();
+	ShipBase::Render(graphics);
 }
 
-int Ship::GetTotalScore()
+int PlayerShip::GetTotalScore()
 {
 	return totalScore;
 }
 
-void Ship::ResetScore()
+void PlayerShip::ResetScore()
 {
 	totalScore = 0;
 	recentScore = 0;
 }
 
-void Ship::addScore(Asteroid* asteroid)
+void PlayerShip::addScore(int score)
 {
-	int deltaScore = 10;
-	switch (asteroid->GetSize()) {
-		case 1: deltaScore = 50; break;
-		case 2: deltaScore = 20; break;
-		case 3: deltaScore = 10; break;
-	}
-	totalScore += deltaScore;
-	recentScore = deltaScore;
+	totalScore += score;
+	recentScore = score;
 	floatScoreCounter = 2.0;
 }
 
-D3DXVECTOR3 Ship::GetForwardVector() const
+void PlayerShip::CalculateScoreFromAsteroidSize(Asteroid * asteroid)
 {
-	return forward_;
-}
-
-D3DXVECTOR3 Ship::GetVelocity() const
-{
-	return velocity_;
-}
-
-void Ship::Reset()
-{
-	accelerationControl_ = 0.0f;
-	rotationControl_ = 0.0f;
-
-	velocity_ = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	forward_ = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	rotation_ = 0.0f;
-
-	SetPosition(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	switch (asteroid->GetSize()) {
+	case 1: addScore(50); break;
+	case 2: addScore(20); break;
+	case 3: addScore(10); break;
+	}
 }

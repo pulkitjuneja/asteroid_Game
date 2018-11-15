@@ -6,15 +6,17 @@ bool BulletManager::IsBullet(GameEntity * entity) const
 		bullets.end(), entity) != bullets.end());
 }
 
-void BulletManager::SpawnBullet(const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction, Collision* collisionSystem)
+BulletManager::BulletManager(Collision * collisionref)
+	:collisionRef_(collisionref)
 {
-	std::chrono::duration<float> elapsed = Time::now() - lastBulletFireTime;
-	if (elapsed.count() > FIRE_GAP) {
-		Bullet* newBullet = new Bullet(position, direction);
-		newBullet->EnableCollisions(collisionSystem, 3.0f);
+}
+
+void BulletManager::SpawnBullet(const D3DXVECTOR3 & position, const D3DXVECTOR3 & direction,
+	ShipBase* shipRef, D3DCOLOR bulletColor)
+{
+		Bullet* newBullet = new Bullet(position, direction, shipRef, bulletColor);
+		newBullet->EnableCollisions(collisionRef_, 3.0f);
 		bullets.push_back(newBullet);
-		lastBulletFireTime = Time::now();
-	}
 }
 
 void BulletManager::DeleteBullet(Bullet * bullet)
