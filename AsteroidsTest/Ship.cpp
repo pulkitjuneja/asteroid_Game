@@ -62,7 +62,6 @@ void PlayerShip::Update(System *system)
 
 	rotation_ = Maths::WrapModulo(rotation_ + rotationControl_ * RATE_OF_ROTATION,
 		Maths::TWO_PI);
-
 	ShipBase::Update(system);
 }
 

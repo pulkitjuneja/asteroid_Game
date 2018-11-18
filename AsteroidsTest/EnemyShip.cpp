@@ -6,8 +6,8 @@ EnemyShip::EnemyShip(System * system, ShipBase* targetShip):
 	targetShip_(targetShip)
 {
 	shipColor = 0xff0000;
-	MAX_SPEED = 1.0f;
-	FIRE_GAP = 2.0;
+	MAX_SPEED = 1.5f;
+	FIRE_GAP = 1.5;
 }
 
 void EnemyShip::Update(System * system)
@@ -53,7 +53,7 @@ void EnemyShip::shoot()
 	std::chrono::duration<float> elapsed = Time::now() - lastBulletFireTime;
 	if (elapsed.count() > FIRE_GAP) {
 		int fireProbability = rand() % 10;
-		if (fireProbability > 5) {
+		if (fireProbability > 4) {
 			D3DXVECTOR3 playerForward = GetForwardVector();
 			D3DXVECTOR3 bulletPosition = GetPosition() + playerForward * 10.0f;
 			bulletManagerRef_->SpawnBullet(bulletPosition, playerForward, this, this->shipColor);

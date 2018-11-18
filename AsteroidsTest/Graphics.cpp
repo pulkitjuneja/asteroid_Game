@@ -143,6 +143,11 @@ void Graphics::SetPointSize(float size)
 	d3dDevice_->SetRenderState(D3DRS_POINTSIZE, reinterpret_cast<DWORD &>(size));
 }
 
+IDirect3DDevice9 * Graphics::GetDevice()
+{
+	return d3dDevice_;
+}
+
 void Graphics::DisableLighting()
 {
 	d3dDevice_->SetRenderState(D3DRS_LIGHTING, FALSE);

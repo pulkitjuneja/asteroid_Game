@@ -47,6 +47,7 @@ private:
 
 	void SpawnPlayer();
 	void DeletePlayer();
+	void DeleteEnemy();
 	void SpawnEnemy(int level);
 
 	void UpdatePlayer(System *system);
@@ -73,6 +74,7 @@ private:
 	Font* scoreFont_;
 	EnemyShip* enemyShip_;
 	Collision *collision_;
+	Explosion* collisionExplosion;
 };
 
 #endif // GAME_H_INCLUDED

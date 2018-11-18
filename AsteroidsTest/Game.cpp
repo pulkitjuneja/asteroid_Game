@@ -16,7 +16,8 @@ Game::Game(System* system) :
 	background_(0),
 	player_(0),
 	collision_(0),
-	systemRef_(system)
+	systemRef_(system),
+	enemyShip_(nullptr)
 {
 	camera_ = new OrthoCamera();
 	camera_->SetPosition(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
@@ -25,6 +26,7 @@ Game::Game(System* system) :
 	collision_ = new Collision();
 	bulletManager = new BulletManager(collision_);
 	scoreFont_ = system->GetGraphics()->CreateXFont("Arial", 20);
+	collisionExplosion = new Explosion(systemRef_, 0xffff00);
 }
 
 Game::~Game()
@@ -34,12 +36,14 @@ Game::~Game()
 	delete player_;
 	DeleteAllAsteroids();
 	bulletManager->DeleteAllBullets();
+	DeleteEnemy();
 	DeleteAllExplosions();
 	delete collision_;
 }
 
 void Game::Update(System *system)
 {
+	collisionExplosion->Update(system);
 	UpdatePlayer(system);
 	UpdateAsteroids(system);
 	bulletManager->UpdateBullets(system);
@@ -93,12 +97,15 @@ void Game::RenderEverything(Graphics *graphics)
 	if (enemyShip_ != nullptr) {
 		enemyShip_->Render(graphics);
 	}
+
+	collisionExplosion->Render(graphics);
 }
 
 void Game::InitialiseLevel(int level)
 {
 	DeleteAllAsteroids();
 	DeleteAllExplosions();
+	DeleteEnemy();
 	bulletManager->DeleteAllBullets();
 	SpawnPlayer();
 	SpawnEnemy(level);
@@ -129,6 +136,7 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 	}
 
 	if (bullet) {
+		collisionExplosion->Emit(20, bullet->GetPosition());
 		if (asteroid) {
 			player_->CalculateScoreFromAsteroidSize(asteroid);
 			AsteroidHit(asteroid);
@@ -140,8 +148,7 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 		else if (enemy && bullet->shipRef_ == player_) {
 			bulletManager->DeleteBullet(bullet);
 			player_->addScore(100);
-			delete enemyShip_;
-			enemyShip_ = nullptr;
+			DeleteEnemy();
 		}
 
 	}
@@ -159,6 +166,12 @@ void Game::DeletePlayer()
 {
 	delete player_;
 	player_ = nullptr;
+}
+
+void Game::DeleteEnemy()
+{
+	delete enemyShip_;
+	enemyShip_ = nullptr;
 }
 
 void Game::SpawnEnemy(int level)

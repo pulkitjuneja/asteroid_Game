@@ -5,6 +5,7 @@
 #include "Font.h"
 #include "Asteroid.h"
 #include "ShipBase.h"
+#include "ParticleSystem.h"
 
 class Graphics;
 
@@ -24,6 +25,7 @@ public:
 	void CalculateScoreFromAsteroidSize(Asteroid* asteroid);
 
 protected:
+	ParticleSystem* trail;
 	Keyboard* keyboard;
 	int recentScore, totalScore;
 	Font* floatingScore_;

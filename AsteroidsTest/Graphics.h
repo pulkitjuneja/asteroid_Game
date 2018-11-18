@@ -35,6 +35,8 @@ public:
 
 	void SetPointSize(float size);
 
+	IDirect3DDevice9* GetDevice();
+
 	void DisableLighting();
 	void EnableLighting();
 
