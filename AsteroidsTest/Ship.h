@@ -8,6 +8,7 @@
 #include "ParticleSystem.h"
 
 class Graphics;
+class ParticleTrail;
 
 class PlayerShip : public ShipBase
 {
@@ -25,7 +26,7 @@ public:
 	void CalculateScoreFromAsteroidSize(Asteroid* asteroid);
 
 protected:
-	ParticleSystem* trail;
+	ParticleTrail* trail;
 	Keyboard* keyboard;
 	int recentScore, totalScore;
 	Font* floatingScore_;

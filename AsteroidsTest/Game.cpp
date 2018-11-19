@@ -136,19 +136,22 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 	}
 
 	if (bullet) {
-		collisionExplosion->Emit(20, bullet->GetPosition());
 		if (asteroid) {
 			player_->CalculateScoreFromAsteroidSize(asteroid);
 			AsteroidHit(asteroid);
+			collisionExplosion->Emit(20, bullet->GetPosition());
 			bulletManager->DeleteBullet(bullet);
 		} else if (player && bullet->shipRef_ != player_) {
+			collisionExplosion->Emit(20, bullet->GetPosition());
 			bulletManager->DeleteBullet(bullet);
 			DeletePlayer();
 		}
 		else if (enemy && bullet->shipRef_ == player_) {
+			collisionExplosion->Emit(20, bullet->GetPosition());
 			bulletManager->DeleteBullet(bullet);
 			player_->addScore(100);
 			DeleteEnemy();
+			collisionExplosion->Emit(20, bullet->GetPosition());
 		}
 
 	}

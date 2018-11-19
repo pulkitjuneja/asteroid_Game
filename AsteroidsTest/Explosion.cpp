@@ -8,11 +8,13 @@ Explosion::Explosion(System * system, D3DCOLOR color):
 
 void Explosion::Emit(int numParticles, D3DXVECTOR3 position)
 {
-	for (int i = 0; i < numParticles; i++) {
-		float velX = 2 * ((float)rand() / (float)RAND_MAX) - 1;
-		float velY = 2 * ((float)rand() / (float)RAND_MAX) - 1;
-		Particle* particle = new Particle(position, D3DXVECTOR3(velX * 50, velY * 50, 0), explosionColor, explosionLife);
-		ParticleContainer.push_back(particle);
+	if (ParticleContainer.size() < this->MaxParticles) {
+		for (int i = 0; i < numParticles; i++) {
+			float velX = 2 * ((float)rand() / (float)RAND_MAX) - 1;
+			float velY = 2 * ((float)rand() / (float)RAND_MAX) - 1;
+			Particle* particle = new Particle(position, D3DXVECTOR3(velX * 50, velY * 50, 0), explosionColor, explosionLife);
+			ParticleContainer.push_back(particle);
+		}
 	}
 }
 

@@ -3,6 +3,7 @@
 #include "Maths.h"
 #include "Keyboard.h"
 #include <algorithm>
+#include "ParticleTrail.h"
 
 PlayerShip::PlayerShip(System* system) : 
 	ShipBase(system),
@@ -12,6 +13,7 @@ PlayerShip::PlayerShip(System* system) :
 	floatingScore_ = system->GetGraphics()->CreateXFont("Arial", 20);
 	keyboard = system->GetKeyboard();
 	MAX_SPEED = 2.0;
+	trail = new ParticleTrail(system);
 }
 
 void PlayerShip::SetControlInput(float acceleration,
@@ -23,9 +25,15 @@ void PlayerShip::SetControlInput(float acceleration,
 
 void PlayerShip::Update(System *system)
 {
+
+	trail->SetPosition(GetPosition());
+	trail->SetTrailDirection(GetForwardVector());
+	trail->Update(system);
+
 	accelerationControl_ = 0.0f;
 	if (keyboard->IsKeyHeld(VK_UP) || keyboard->IsKeyHeld('W'))
 	{
+		trail->Emit(10);
 		accelerationControl_ = 1.0f;
 	}
 	else if (keyboard->IsKeyHeld(VK_DOWN) || keyboard->IsKeyHeld('S'))
@@ -74,7 +82,7 @@ void PlayerShip::Render(Graphics *graphics) const
 		int textX = 800 - floatingScore_->CalculateTextWidth(scoreString) - 20; // padding 
 		floatingScore_->DrawText(scoreString, textX, 25, 0xffffff00);
 	}
-
+	trail->Render(graphics);
 	ShipBase::Render(graphics);
 }
 

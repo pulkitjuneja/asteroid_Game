@@ -110,6 +110,7 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="ParticleTrail.cpp" />
     <ClCompile Include="PlayingState.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Ship.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="ParticleSystem.h" />
+    <ClInclude Include="ParticleTrail.h" />
     <ClInclude Include="PlayingState.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Ship.h" />

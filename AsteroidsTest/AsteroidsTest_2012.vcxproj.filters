@@ -111,6 +111,9 @@
     <ClCompile Include="ParticleSystem.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleTrail.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainWindow.h">
@@ -204,6 +207,9 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSystem.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleTrail.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>

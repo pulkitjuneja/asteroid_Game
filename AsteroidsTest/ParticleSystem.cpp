@@ -20,10 +20,8 @@ void ParticleSystem::InitializeBuffer(Graphics* graphics)
 
 void ParticleSystem::Update(System * system)
 {
-
 	UpdateParticles(system);
 
-	// need to do this in a seperate loop as removing particles in the previous loop can alter the size of the array
 	ParticleVert* bufferData = new ParticleVert[ParticleContainer.size()];
 	for (int i = 0; i < ParticleContainer.size(); i++) {
 		ZeroMemory(&bufferData[i], sizeof(ParticleVert));
@@ -39,6 +37,7 @@ void ParticleSystem::Update(System * system)
 	}
 	memcpy(pData, bufferData, ParticleContainer.size() * sizeof(ParticleVert));
 	VertexBuffer_->Unlock();
+
 }
 
 void ParticleSystem::Render(Graphics * graphics)
