@@ -43,7 +43,6 @@ private:
 	void operator=(const Game &);
 
 	typedef std::list<Asteroid *> AsteroidList;
-	typedef std::list<Explosion *> ExplosionList;
 
 	void SpawnPlayer();
 	void DeletePlayer();
@@ -70,7 +69,6 @@ private:
 	Background *background_;
 	PlayerShip *player_;
 	AsteroidList asteroids_;
-	ExplosionList explosions_;
 	Font* scoreFont_;
 	EnemyShip* enemyShip_;
 	Collision *collision_;

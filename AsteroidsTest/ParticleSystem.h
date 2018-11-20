@@ -38,6 +38,7 @@ protected:
 public:
 	ParticleSystem(System* system);
 	void InitializeBuffer(Graphics* graphics);
+	void ClearAllParticles();
 	virtual void UpdateParticles(System* system) = 0;
 	void Update(System* system);
 	void Render(Graphics* graphics);

@@ -78,14 +78,6 @@ void Game::RenderEverything(Graphics *graphics)
 
 	bulletManager->RenderBullets(graphics);
 
-	for (ExplosionList::const_iterator explosionIt = explosions_.begin(),
-		end = explosions_.end();
-		explosionIt != end;
-		++explosionIt)
-	{
-		(*explosionIt)->Render(graphics);
-	}
-
 	// rendeing Player score
 	// rendering it here as I believe that the game class should have control of where the score is rendered
 	if (player_ != nullptr) {
@@ -114,12 +106,12 @@ void Game::InitialiseLevel(int level)
 
 bool Game::IsLevelComplete() const
 {
-	return (asteroids_.empty() && explosions_.empty());
+	return (asteroids_.empty());
 }
 
 bool Game::IsGameOver() const
 {
-	return (player_ == nullptr && explosions_.empty());
+	return (player_ == nullptr);
 }
 
 void Game::DoCollision(GameEntity *a, GameEntity *b)
@@ -137,7 +129,9 @@ void Game::DoCollision(GameEntity *a, GameEntity *b)
 
 	if (bullet) {
 		if (asteroid) {
-			player_->CalculateScoreFromAsteroidSize(asteroid);
+			if (bullet->shipRef_ == player_) {
+				player_->CalculateScoreFromAsteroidSize(asteroid);
+			}
 			AsteroidHit(asteroid);
 			collisionExplosion->Emit(20, bullet->GetPosition());
 			bulletManager->DeleteBullet(bullet);
@@ -231,15 +225,7 @@ void Game::DeleteAllAsteroids()
 
 void Game::DeleteAllExplosions()
 {
-	for (ExplosionList::const_iterator explosionIt = explosions_.begin(),
-		end = explosions_.end();
-		explosionIt != end;
-	++explosionIt)
-	{
-		delete (*explosionIt);
-	}
-
-	explosions_.clear();
+	collisionExplosion->ClearAllParticles();
 }
 
 void Game::SpawnAsteroids(int numAsteroids)

@@ -18,6 +18,11 @@ void ParticleSystem::InitializeBuffer(Graphics* graphics)
 	}
 }
 
+void ParticleSystem::ClearAllParticles()
+{
+	ParticleContainer.clear();
+}
+
 void ParticleSystem::Update(System * system)
 {
 	UpdateParticles(system);
