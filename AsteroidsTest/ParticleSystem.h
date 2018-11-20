@@ -12,7 +12,7 @@ struct Particle {
 	D3DCOLOR color;
 	double life;
 
-	Particle(D3DXVECTOR3 position, D3DXVECTOR3 velocity, D3DCOLOR color, float life) {
+	Particle(D3DXVECTOR3 position, D3DXVECTOR3 velocity, D3DCOLOR color, double life) {
 		this->position = position;
 		this->velocity = velocity;
 		this->color = color;
